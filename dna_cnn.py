@@ -12,7 +12,10 @@ from __future__ import annotations
 
 import numpy as np
 
-__all__ = ["encode", "decode", "GeneRecord", "codec_stats"]
+__all__ = [
+    "encode", "decode", "GeneRecord", "codec_stats",
+    "encode_filters", "decode_filters",
+]
 
 
 class GeneRecord:
@@ -80,3 +83,31 @@ def codec_stats(matrix: np.ndarray, bits: int = 8) -> dict:
         "max_abs_error": float(np.abs(matrix - decode(record)).max()),
         "bits": bits,
     }
+
+
+def encode_filters(filters: np.ndarray, bits: int = 8) -> list:
+    """Encode a conv weight tensor (out_ch, in_ch, kh, kw) per output channel.
+
+    Convolution filters of different output channels usually have different
+    value ranges. Encoding each (in_ch, kh, kw) slice with its own scale
+    gives lower reconstruction error than one global scale.
+
+    Returns: List of GeneRecord, one per output channel.
+    """
+    filters = np.asarray(filters, dtype=np.float64)
+    if filters.ndim != 4:
+        raise ValueError("filters must be 4-D (out_ch, in_ch, kh, kw)")
+    return [encode(filters[i].reshape(1, -1), bits=bits) for i in range(filters.shape[0])]
+
+
+def decode_filters(records: list, shape: tuple) -> np.ndarray:
+    """Reconstruct a conv weight tensor from encode_filters output.
+
+    shape: original (out_ch, in_ch, kh, kw).
+    """
+    shape = tuple(int(s) for s in shape)
+    if len(shape) != 4 or len(records) != shape[0]:
+        raise ValueError("need one record per output channel and a 4-D shape")
+    per_channel = shape[1] * shape[2] * shape[3]
+    slices = [decode(r).reshape(per_channel) for r in records]
+    return np.stack(slices, axis=0).reshape(shape)
