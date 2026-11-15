@@ -1,7 +1,8 @@
 # DNA-CNN
 
 [![CI](https://github.com/kapildhinwa2010-dev/DNA-CNN/actions/workflows/ci.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/DNA-CNN/actions/workflows/ci.yml)
-[![CI](https://github.com/kapildhinwa2010-dev/DNA-CNN/actions/workflows/codeql.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/DNA-CNN/actions/workflows/codeql.yml)
+[![CodeQL](https://github.com/kapildhinwa2010-dev/DNA-CNN/actions/workflows/codeql.yml/badge.svg)](https://github.com/kapildhinwa2010-dev/DNA-CNN/actions/workflows/codeql.yml)
+
 
 DNA quantized codec tuned for convolutional filters: per-output-channel encoding.
 
